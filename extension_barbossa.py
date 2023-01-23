@@ -58,7 +58,7 @@ def legal_assignments(digraph, w, partialAssig, index, legalAssig):
     if partialAssig[:index] == legal[:index]:
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig)
         second = True
-    print(first, second)
+    # print(first, second)
 
 
 def acyclic(graph, index=0, digraph=DiGraph(), nAcyclicOrientations=0):

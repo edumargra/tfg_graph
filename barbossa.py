@@ -1,27 +1,33 @@
 from time import process_time_ns
 
 
-def antecessorInW_(digraph, v, w, d):
-    antecessorInW = False
-    # for parent, *_ in digraph.incoming_edges(v):
-    incoming_edges = digraph.incoming_edges(v) or []
-    idx = 0
-    while not antecessorInW and idx != len(incoming_edges):
-        parent, *_ = incoming_edges[idx]
-        if parent in w and d[w.index(parent)] == "1":
-            return True
-        antecessorInW = antecessorInW or antecessorInW_(digraph, parent, w, d)
-        idx += 1
-    return antecessorInW
+def closure(digraph, newD, w):
+    tmpDigraph = digraph.copy()
+    sources = set(tmpDigraph.sources())
+    assignments = dict(zip(w, newD))
+    while sources:
+        source = sources.pop()
+        special_vertex = False
+        if source in assignments and assignments[source] == "1":
+            special_vertex = True
+        if tmpDigraph.get_vertex(source) == "1":
+            special_vertex = True
+        if source in assignments and special_vertex:
+            assignments[source] = "1"
+        for node in tmpDigraph.neighbors_out(source):
+            tmpDigraph.delete_edge(source, node)
+            if not tmpDigraph.neighbors_in(node):
+                sources.add(node)
+            if special_vertex:
+                tmpDigraph.set_vertex(node, "1")
+    newNewD = "".join(assignments.values())
+    return newNewD
 
 
-def closure_next_assignment(digraph, w, d):
+def next_legal_assignment(digraph, w, d):
     zInd = d.rfind("0")
     newD = f"{d[:zInd]}1{'0'*(len(w)-(zInd+1))}"
-    for index in range(zInd + 1, len(w)):
-        if antecessorInW_(digraph, w[index], w, newD):
-            newD = f"{newD[:index]}1{newD[index+1:]}"
-    return newD
+    return closure(digraph, newD, w)
 
 
 def extend(digraph, w, d, v):
@@ -59,7 +65,7 @@ def acyclic_old(graph, index=0, digraph=DiGraph()):
                 graph, index + 1, newDiGraph
             )  # not simply add vertex, previous edges too!
             if d != "1" * len(neighbors):
-                d = closure_next_assignment(digraph, w, d)
+                d = next_legal_assignment(digraph, w, d)
             else:
                 last = True
 
