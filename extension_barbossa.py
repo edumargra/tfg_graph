@@ -3,28 +3,26 @@ Like algo.py but with some improvements
 """
 from time import process_time_ns
 
+VISITED = 1
+
 
 def closure(digraph, newD, w):
     tmpDigraph = digraph.copy()
-    sources = set(tmpDigraph.sources())
     assignments = dict(zip(w, newD))
-    while sources:
-        source = sources.pop()
-        special_vertex = False
-        if source in assignments and assignments[source] == "1":
-            special_vertex = True
-        if tmpDigraph.get_vertex(source) == "1":
-            special_vertex = True
-        if source in assignments and special_vertex:
-            assignments[source] = "1"
-        for node in tmpDigraph.neighbors_out(source):
-            tmpDigraph.delete_edge(source, node)
-            if not tmpDigraph.neighbors_in(node):
-                sources.add(node)
-            if special_vertex:
-                tmpDigraph.set_vertex(node, "1")
-    newNewD = "".join(assignments.values())
-    return newNewD
+    neighbors_out = [node for node, direciton in assignments.items() if direciton == "1"]
+    for node in neighbors_out:
+        _visit(node, tmpDigraph, assignments)
+    return "".join(assignments.values())
+
+
+def _visit(node, digraph, assignment):
+    if digraph.get_vertex(node) == VISITED:
+        return
+    if node in assignment:
+        assignment[node] = "1"
+    digraph.set_vertex(node, VISITED)
+    for descendant in digraph.neighbors_out(node):
+        _visit(descendant, digraph, assignment)
 
 
 def next_legal_assignment(digraph, w, d):
@@ -47,13 +45,15 @@ def legal_assignments(digraph, w, partialAssig, index, legalAssig):
     first = False
     second = False
     legal = closure(digraph, partialAssig, w)
-    if index == len(w) and partialAssig == legal: #easy improvemnt is to not check only at bottom, and if good stop 0
+    if (
+        index == len(w) and partialAssig == legal
+    ):  # easy improvemnt is to not check only at bottom, and if good stop 0
         legalAssig.append(partialAssig)
         return
     if partialAssig[:index] == legal[:index]:
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig)
         first = True
-    partialAssig = partialAssig[:index] + "1" + partialAssig[index + 1:]
+    partialAssig = partialAssig[:index] + "1" + partialAssig[index + 1 :]
     legal = closure(digraph, partialAssig, w)
     if partialAssig[:index] == legal[:index]:
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig)
@@ -72,7 +72,7 @@ def acyclic(graph, index=0, digraph=DiGraph(), nAcyclicOrientations=0):
         newDiGraph.add_vertex(index)
         nAcyclicOrientations = acyclic(graph, index + 1, newDiGraph, nAcyclicOrientations)
     else:
-        w = neighbors#[node for node in digraph.topological_sort() if node in neighbors]
+        w = neighbors  # [node for node in digraph.topological_sort() if node in neighbors]
         legalAssig = []
         legal_assignments(digraph, w, "0" * len(w), 0, legalAssig)
         for assignment in legalAssig:
