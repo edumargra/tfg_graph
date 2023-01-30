@@ -16,11 +16,8 @@ def closure(digraph, newD, w, digirth):
 
 
 def _visit(node, digraph, assignment, counter):
-    if counter > -1:
-        for descendant in digraph.neighbors_out(node):
-            _visit(descendant, digraph, assignment, counter - 1)
+    if counter == 0:
         return
-    # start from the digirth and -1 each deep step in and return when 0
     if digraph.get_vertex(node) == VISITED:
         return
     if node in assignment:
@@ -86,7 +83,7 @@ def acyclic(graph, index=0, digraph=DiGraph(), nAcyclicOrientations=0, digirth=0
     return nAcyclicOrientations
 
 
-def compute_acyclic_orientations_extension(graph, digirth=0):
+def compute_acyclic_orientations_extension(graph, digirth=Infinity):
     a = process_time_ns()
     nAcyclicOrientations = acyclic(graph, digirth=digirth)
     b = process_time_ns()
