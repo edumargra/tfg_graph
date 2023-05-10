@@ -17,18 +17,12 @@ def compute_orientations_grey_algorithm(graph):
         f"Found {orientations} orientations in {(b-a)/1000000000}s"
     )
 
-def grey_algorithm(graph):
-    orientations = []
-    initial_orientation = graph.edges(labels=False)
-    orientations.append(initial_orientation)
-    for idx, edge in enumerate(initial_orientation):
-        u, v = edge
-        prev_orientation = orientations[-1]
-        next_orientation = prev_orientation[:idx+1] + [(v,u)] + prev_orientation[idx+2:]
-        import pdb
-        pdb.set_trace()
-        orientations.append(next_orientation)
-    return orientations
+def grey_algorithm(graph, girth):  # TODO: add optional girth
+    nAcyclic_orientations = []
+    for orientation in graph.orientations():
+        if orientation.girth() < girth:
+            nAcyclic_orientations.append(orientation.edges(label=False))
+    return nAcyclic_orientations
 
 
 triangle_orientations = [[(0,1),(1,2),(2,0)]]
