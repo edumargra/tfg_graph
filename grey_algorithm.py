@@ -9,19 +9,19 @@ orientations.
 from time import process_time_ns
 
 
-def compute_orientations_grey_algorithm(graph):
+def compute_orientations_grey_algorithm(graph, girth=+Infinity):
     a = process_time_ns()
-    orientations = grey_algorithm(graph)
+    orientations = grey_algorithm(graph, girth)
     b = process_time_ns()
     print(
-        f"Found {orientations} orientations in {(b-a)/1000000000}s"
+        f"Found {len(orientations)} orientations in {(b-a)/1000000000}s"
     )
 
-def grey_algorithm(graph, girth):  # TODO: add optional girth
+def grey_algorithm(graph, girth):
     nAcyclic_orientations = []
     for orientation in graph.orientations():
-        if orientation.girth() < girth:
-            nAcyclic_orientations.append(orientation.edges(label=False))
+        if orientation.girth() >= girth:
+            nAcyclic_orientations.append(orientation.edges(labels=False))
     return nAcyclic_orientations
 
 

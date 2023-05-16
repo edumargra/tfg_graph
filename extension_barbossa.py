@@ -66,7 +66,7 @@ def legal_assignments(digraph, w, partialAssig, index, legalAssig, digirth):
 def acyclic(graph, index=0, digraph=DiGraph(), nAcyclicOrientations=0, digirth=0):
     if index == (graph.order()):
         # digraph.show()
-        print(f"({nAcyclicOrientations+1}) Acyclic orientation of G: {digraph.edges()}")
+#        print(f"({nAcyclicOrientations+1}) Acyclic orientation of G: {digraph.edges()}")
         return nAcyclicOrientations + 1
     neighbors = list(set(graph.neighbors(index)).intersection(digraph.vertices()))
     if neighbors == []:
