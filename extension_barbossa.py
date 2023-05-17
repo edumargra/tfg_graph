@@ -57,30 +57,30 @@ def legal_assignments(digraph, w, partialAssig, index, legalAssig, digirth):
     # print(first, second)
 
 
-def acyclic(graph, index=0, digraph=DiGraph(), nAcyclicOrientations=0, digirth=0):
+def acyclic_orientations(graph, orientations, index=0, digraph=DiGraph(), digirth=0):
     if index == (graph.order()):
-        # digraph.show()
-#        print(f"({nAcyclicOrientations+1}) Acyclic orientation of G: {digraph.edges()}")
-        return nAcyclicOrientations + 1
+        orientations.append(digraph.edges(labels=False))
+        return
     neighbors = list(set(graph.neighbors(index)).intersection(digraph.vertices()))
     if neighbors == []:
         newDiGraph = digraph.copy()
         newDiGraph.add_vertex(index)
-        nAcyclicOrientations = acyclic(graph, index + 1, newDiGraph, nAcyclicOrientations, digirth)
+        acyclic_orientations(graph, orientations, index + 1, newDiGraph, digirth)
     else:
-        w = neighbors  # [node for node in digraph.topological_sort() if node in neighbors]
+        w = neighbors
         legalAssig = []
         legal_assignments(digraph, w, "0" * len(w), 0, legalAssig, digirth)
         for assignment in legalAssig:
             newDiGraph = extend(digraph, w, assignment, index)
-            nAcyclicOrientations = acyclic(graph, index + 1, newDiGraph, nAcyclicOrientations, digirth)
-    return nAcyclicOrientations
+            acyclic_orientations(graph, orientations, index + 1, newDiGraph, digirth)
+    return
 
 
 def compute_acyclic_orientations_extension(graph, digirth=Infinity):
     a = process_time_ns()
-    nAcyclicOrientations = acyclic(graph, digirth=digirth)
+    orientations = []
+    acyclic_orientations(graph, orientations, digirth=digirth)
     b = process_time_ns()
     print(
-        f"Found {nAcyclicOrientations} of {graph.tutte_polynomial()(2,0)} acyclic orientations in {(b-a)/1000000000}s"
+        f"Found {len(orientations)} of {graph.tutte_polynomial()(2,0)} n{digirth} acyclic orientations in {(b-a)/1000000000}s"
     )
