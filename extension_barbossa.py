@@ -27,12 +27,6 @@ def _visit(node, digraph, assignment, counter):
         _visit(descendant, digraph, assignment, counter - 1)
 
 
-# def next_legal_assignment(digraph, w, d):
-#     zInd = d.rfind("0")
-#     newD = f"{d[:zInd]}1{'0'*(len(w)-(zInd+1))}"
-#     return closure(digraph, newD, w)
-
-
 def extend(digraph, w, d, v):
     newGraph = digraph.copy()  # check differance between this and copy(g)
     for ind, _ in enumerate(w):
@@ -90,20 +84,3 @@ def compute_acyclic_orientations_extension(graph, digirth=Infinity):
     print(
         f"Found {nAcyclicOrientations} of {graph.tutte_polynomial()(2,0)} acyclic orientations in {(b-a)/1000000000}s"
     )
-
-
-# dummy tries
-# star and disconnected, triangle, square
-
-# TOASK
-# is it necessay to order all graph topologically? I don't think so, I think just ordering using the sonds of W-node's is enough?
-# try with star graph and disconnected: nice
-# with triangle: not so nice
-
-# triangle example
-#  g = Graph([(0,1),(1,2),(2,0)])
-
-# TODO
-# use the tutte polynomial, as T_G(0,2) to check that there are as many acyclic orientations
-# implement topological ordering in incrementing way, so that when I add node v_i
-# implrmrnt some data structure to save antecessors
