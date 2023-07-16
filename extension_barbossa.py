@@ -1,5 +1,5 @@
-"""
-Like algo.py but with some improvements
+"""This file contains all the necessary parts to compute all digirth
+`d` orientations of a graph.
 """
 from time import process_time_ns
 
