@@ -4,12 +4,14 @@
 from time import process_time_ns
 
 VISITED = 1
+OUTGOING_ASSIGNMENT = "1"
+INCOMING_ASSIGNMENT = "0"
 
 
 def closure(digraph, newD, w, digirth):
     tmpDigraph = digraph.copy()
     assignments = dict(zip(w, newD))
-    neighbors_out = [node for node, direciton in assignments.items() if direciton == "1"]
+    neighbors_out = [node for node, direciton in assignments.items() if direciton == OUTGOING_ASSIGNMENT]
     for node in neighbors_out:
         _visit(node, tmpDigraph, assignments, digirth - 2)
     return "".join(assignments.values())
@@ -21,7 +23,7 @@ def _visit(node, digraph, assignment, counter):
     if digraph.get_vertex(node) == VISITED:
         return
     if node in assignment:
-        assignment[node] = "1"
+        assignment[node] = OUTGOING_ASSIGNMENT
     digraph.set_vertex(node, VISITED)
     for descendant in digraph.neighbors_out(node):
         _visit(descendant, digraph, assignment, counter - 1)
@@ -30,7 +32,7 @@ def _visit(node, digraph, assignment, counter):
 def extend(digraph, w, d, v):
     newGraph = digraph.copy()
     for ind, _ in enumerate(w):
-        if d[ind] == "0":
+        if d[ind] == INCOMING_ASSIGNMENT:
             newGraph.add_edge(w[ind], v)
         else:
             newGraph.add_edge(v, w[ind])
@@ -54,7 +56,7 @@ def _legal_assignments_recursive(digraph, neighbors, partial_assignment, partial
 
 def compute_legal_assignments(digraph, neighbors, digirth):
     legal_assignments = []
-    initial_partial_assignment = "0" * len(neighbors)
+    initial_partial_assignment = INCOMING_ASSIGNMENT * len(neighbors)
     _legal_assignments_recursive(digraph, neighbors, initial_partial_assignment, 0,
                                   legal_assignments, digirth)
     return legal_assignments
