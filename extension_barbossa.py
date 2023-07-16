@@ -28,7 +28,7 @@ def _visit(node, digraph, assignment, counter):
 
 
 def extend(digraph, w, d, v):
-    newGraph = digraph.copy()  # check differance between this and copy(g)
+    newGraph = digraph.copy()
     for ind, _ in enumerate(w):
         if d[ind] == "0":
             newGraph.add_edge(w[ind], v)
@@ -38,23 +38,18 @@ def extend(digraph, w, d, v):
 
 
 def legal_assignments(digraph, w, partialAssig, index, legalAssig, digirth):
-    first = False
-    second = False
     legal = closure(digraph, partialAssig, w, digirth)
     if (
         index == len(w) and partialAssig == legal
-    ):  # easy improvemnt is to not check only at bottom, and if good stop 0
+    ):
         legalAssig.append(partialAssig)
         return
     if partialAssig[:index] == legal[:index]:
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig, digirth)
-        first = True
     partialAssig = partialAssig[:index] + "1" + partialAssig[index + 1 :]
     legal = closure(digraph, partialAssig, w, digirth)
     if partialAssig[:index] == legal[:index]:
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig, digirth)
-        second = True
-    # print(first, second)
 
 
 def acyclic_orientations(graph, orientations, index=0, digraph=DiGraph(), digirth=0):
