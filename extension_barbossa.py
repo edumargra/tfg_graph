@@ -52,19 +52,19 @@ def compute_legal_assignments(digraph, neighbors, digirth):
     return legal_assignments
 
 
-def _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index, legal_assignment, digirth):
+def _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index, legal_assignments, digirth):
     legal = closure(digraph, partial_assignment, neighbors, digirth)
     if (
         partial_assignment_index == len(neighbors) and partial_assignment == legal
     ):
-        legal_assignment.append(partial_assignment)
+        legal_assignments.append(partial_assignment)
         return
     if partial_assignment[:partial_assignment_index] == legal[:partial_assignment_index]:
-        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignment, digirth)
+        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignments, digirth)
     partial_assignment = partial_assignment[:partial_assignment_index] + "1" + partial_assignment[partial_assignment_index + 1 :]
     legal = closure(digraph, partial_assignment, neighbors, digirth)
     if partial_assignment[:partial_assignment_index] == legal[:partial_assignment_index]:
-        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignment, digirth)
+        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignments, digirth)
 
 
 def extend(digraph, w, d, v):
