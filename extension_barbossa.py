@@ -11,12 +11,15 @@ def compute_orientations_with_time(graph, digirth=Infinity):
     a = process_time_ns()
     orientations = compute_orientations(graph, digirth)
     b = process_time_ns()
+    number_orientations = graph.tutte_polynomial()(2,0) if digirth == Infinity else "?"
     print(
-        f"Found {len(orientations)} of {graph.tutte_polynomial()(2,0)} n{digirth} acyclic orientations in {(b-a)/1000000000}s"
+        f"Found {len(orientations)} of {number_orientations} {digirth}-digirth orientations in {(b-a)/999999999}s"
     )
 
 
 def compute_orientations(graph, digirth=Infinity):
+    if digirth < 3:
+        digirth = 3
     orientations = []
     digraph = DiGraph()
     _compute_orientations_recursive(graph, orientations, 0,
@@ -82,7 +85,7 @@ def closure(digraph, newD, w, digirth):
     assignments = dict(zip(w, newD))
     neighbors_out = [node for node, direciton in assignments.items() if direciton == OUTGOING_ASSIGNMENT]
     for node in neighbors_out:
-        _visit(node, tmpDigraph, assignments, digirth - 2)
+        _visit(node, tmpDigraph, assignments, digirth - 3)
     return "".join(assignments.values())
 
 
