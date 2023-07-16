@@ -52,7 +52,7 @@ def legal_assignments(digraph, w, partialAssig, index, legalAssig, digirth):
         legal_assignments(digraph, w, partialAssig, index + 1, legalAssig, digirth)
 
 
-def acyclic_orientations(graph, orientations, index=0, digraph=DiGraph(), digirth=0):
+def compute_orientations(graph, orientations, index=0, digraph=DiGraph(), digirth=0):
     if index == (graph.order()):
         orientations.append(digraph.edges(labels=False))
         return
@@ -71,10 +71,10 @@ def acyclic_orientations(graph, orientations, index=0, digraph=DiGraph(), digirt
     return
 
 
-def compute_acyclic_orientations_extension(graph, digirth=Infinity):
+def compute_orientations_with_time(graph, digirth=Infinity):
     a = process_time_ns()
     orientations = []
-    acyclic_orientations(graph, orientations, digirth=digirth)
+    compute_orientations(graph, orientations, digirth=digirth)
     b = process_time_ns()
     print(
         f"Found {len(orientations)} of {graph.tutte_polynomial()(2,0)} n{digirth} acyclic orientations in {(b-a)/1000000000}s"
