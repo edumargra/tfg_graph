@@ -17,12 +17,17 @@ def compute_orientations_grey_algorithm(graph, girth=+Infinity):
         f"Found {len(orientations)} orientations in {(b-a)/1000000000}s"
     )
 
-def grey_algorithm(graph, girth):
-    nAcyclic_orientations = []
+def get_number_of_orientations(graph, digirth=+Infinity):
+    return len(grey_algorithm(graph, digirth))
+
+def grey_algorithm(graph, digirth):
+    if digirth < 3:
+        digirth = 3
+    d_digirth_orientations = []
     for orientation in graph.orientations():
-        if orientation.girth() >= girth:
-            nAcyclic_orientations.append(orientation.edges(labels=False))
-    return nAcyclic_orientations
+        if orientation.girth() >= digirth:
+            d_digirth_orientations.append(orientation.edges(labels=False))
+    return d_digirth_orientations
 
 
 triangle_orientations = [[(0,1),(1,2),(2,0)]]
