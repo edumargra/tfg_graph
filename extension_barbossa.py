@@ -11,7 +11,7 @@ def compute_orientations_with_time(graph, digirth=Infinity):
     a = process_time_ns()
     orientations = compute_orientations(graph, digirth)
     b = process_time_ns()
-    number_orientations = graph.tutte_polynomial()(2,0) if digirth == Infinity else "?"
+    number_orientations = graph.tutte_polynomial()(2, 0) if digirth == Infinity else "?"
     print(
         f"Found {len(orientations)} of {number_orientations} {digirth}-digirth orientations in {(b-a)/999999999}s"
     )
@@ -22,8 +22,7 @@ def compute_orientations(graph, digirth=Infinity):
         digirth = 3
     orientations = []
     digraph = DiGraph()
-    _compute_orientations_recursive(graph, orientations, 0,
-                                           digraph, digirth)
+    _compute_orientations_recursive(graph, orientations, 0, digraph, digirth)
     return orientations
 
 
@@ -35,39 +34,82 @@ def _compute_orientations_recursive(graph, orientations, node_to_add_id, digraph
     if not neighbors:
         newDiGraph = digraph.copy()
         newDiGraph.add_vertex(node_to_add_id)
-        _compute_orientations_recursive(graph, orientations, node_to_add_id + 1, newDiGraph, digirth)
+        _compute_orientations_recursive(
+            graph, orientations, node_to_add_id + 1, newDiGraph, digirth
+        )
     else:
-        legal_assignments = compute_legal_assignments(digraph, neighbors, digirth)
-        for assignment in legal_assignments:
-            newDiGraph = extend(digraph, neighbors, assignment, node_to_add_id)
-            _compute_orientations_recursive(graph, orientations, node_to_add_id + 1, newDiGraph, digirth)
+        compute_legal_assignments(digraph, neighbors, digirth, graph, orientations, node_to_add_id)
 
 
 def _getAlreadyAddedNeighbors(graph, digraph, node_to_add_id):
     return list(set(graph.neighbors(node_to_add_id)).intersection(digraph.vertices()))
 
 
-def compute_legal_assignments(digraph, neighbors, digirth):
+def compute_legal_assignments(digraph, neighbors, digirth, graph, orientations, node_to_add_id):
     legal_assignments = []
     initial_partial_assignment = INCOMING_ASSIGNMENT * len(neighbors)
-    _compute_legal_assignments_recursive(digraph, neighbors, initial_partial_assignment, 0,
-                                  legal_assignments, digirth)
+    _compute_legal_assignments_recursive(
+        digraph,
+        neighbors,
+        initial_partial_assignment,
+        0,
+        legal_assignments,
+        digirth,
+        graph,
+        orientations,
+        node_to_add_id,
+    )
     return legal_assignments
 
 
-def _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index, legal_assignments, digirth):
+def _compute_legal_assignments_recursive(
+    digraph,
+    neighbors,
+    partial_assignment,
+    partial_assignment_index,
+    legal_assignments,
+    digirth,
+    graph,
+    orientations,
+    node_to_add_id,
+):
     legal = closure(digraph, partial_assignment, neighbors, digirth)
-    if (
-        partial_assignment_index == len(neighbors) and partial_assignment == legal
-    ):
-        legal_assignments.append(partial_assignment)
+    if partial_assignment_index == len(neighbors) and partial_assignment == legal:
+        extended_digraph = extend(digraph, neighbors, partial_assignment, node_to_add_id)
+        _compute_orientations_recursive(
+            graph, orientations, node_to_add_id + 1, extended_digraph, digirth
+        )
         return
     if partial_assignment[:partial_assignment_index] == legal[:partial_assignment_index]:
-        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignments, digirth)
-    partial_assignment = partial_assignment[:partial_assignment_index] + "1" + partial_assignment[partial_assignment_index + 1 :]
+        _compute_legal_assignments_recursive(
+            digraph,
+            neighbors,
+            partial_assignment,
+            partial_assignment_index + 1,
+            legal_assignments,
+            digirth,
+            graph,
+            orientations,
+            node_to_add_id,
+        )
+    partial_assignment = (
+        partial_assignment[:partial_assignment_index]
+        + "1"
+        + partial_assignment[partial_assignment_index + 1 :]
+    )
     legal = closure(digraph, partial_assignment, neighbors, digirth)
     if partial_assignment[:partial_assignment_index] == legal[:partial_assignment_index]:
-        _compute_legal_assignments_recursive(digraph, neighbors, partial_assignment, partial_assignment_index + 1, legal_assignments, digirth)
+        _compute_legal_assignments_recursive(
+            digraph,
+            neighbors,
+            partial_assignment,
+            partial_assignment_index + 1,
+            legal_assignments,
+            digirth,
+            graph,
+            orientations,
+            node_to_add_id,
+        )
 
 
 def extend(digraph, w, d, v):
@@ -83,7 +125,9 @@ def extend(digraph, w, d, v):
 def closure(digraph, newD, w, digirth):
     tmpDigraph = digraph.copy()
     assignments = dict(zip(w, newD))
-    neighbors_out = [node for node, direciton in assignments.items() if direciton == OUTGOING_ASSIGNMENT]
+    neighbors_out = [
+        node for node, direciton in assignments.items() if direciton == OUTGOING_ASSIGNMENT
+    ]
     for node in neighbors_out:
         _visit(node, tmpDigraph, assignments, digirth - 3)
     return "".join(assignments.values())
