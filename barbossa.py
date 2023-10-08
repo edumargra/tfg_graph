@@ -2,25 +2,21 @@ from time import process_time_ns
 
 
 def closure(digraph, newD, w):
-    tmpDigraph = digraph.copy()
-    sources = set(tmpDigraph.sources())
+    vertices_and_in_edges = {}
+    for vertex in digraph.vertices():
+        vertices_and_in_edges[vertex] = len(digraph.neighbors_in(vertex))
+    sources = set(digraph.sources())
     assignments = dict(zip(w, newD))
     while sources:
         source = sources.pop()
-        special_vertex = False
-        if source in assignments and assignments[source] == "1":
-            special_vertex = True
-        if tmpDigraph.get_vertex(source) == "1":
-            special_vertex = True
-        if source in assignments and special_vertex:
-            assignments[source] = "1"
-        for node in tmpDigraph.neighbors_out(source):
-            tmpDigraph.delete_edge(source, node)
-            if not tmpDigraph.neighbors_in(node):
-                sources.add(node)
-            if special_vertex:
-                tmpDigraph.set_vertex(node, "1")
-    newNewD = "".join(assignments.values())
+        neighbors_out = digraph.neighbors_out(source)
+        for vertex in neighbors_out:
+            vertices_and_in_edges[vertex] -= 1
+            if vertex in assignments.keys() and assignments.get(source, 0):
+                assignments[vertex] = 1
+            if not vertices_and_in_edges[vertex]:
+                sources.add(vertex)
+    newNewD = "".join((str(value) for value in assignments.values()))
     return newNewD
 
 
