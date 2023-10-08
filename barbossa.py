@@ -7,13 +7,16 @@ def closure(digraph, newD, w):
         vertices_and_in_edges[vertex] = len(digraph.neighbors_in(vertex))
     sources = set(digraph.sources())
     assignments = dict(zip(w, newD))
+    transforming_vertices = {vertex for vertex, assignment in assignments.items() if assignment == "1"}
     while sources:
         source = sources.pop()
         neighbors_out = digraph.neighbors_out(source)
         for vertex in neighbors_out:
             vertices_and_in_edges[vertex] -= 1
-            if vertex in assignments.keys() and assignments.get(source, 0):
-                assignments[vertex] = 1
+            if source in transforming_vertices:
+                if vertex in assignments.keys():
+                    assignments[vertex] = 1
+                transforming_vertices.add(vertex)
             if not vertices_and_in_edges[vertex]:
                 sources.add(vertex)
     newNewD = "".join((str(value) for value in assignments.values()))
@@ -36,12 +39,10 @@ def extend(digraph, w, d, v):
     return newGraph
 
 
-def acyclic_old(graph, index=0, digraph=DiGraph()):
+def acyclic_old(graph, index=0, digraph=DiGraph(), orientations=[]):
     if index == (graph.order()):
-        print(f"(One) Acyclic orientation of G: {digraph.edges()}")
-        # import pdb
-        # pdb.set_trace()
-        # digraph.show()
+        #print(f"(One) Acyclic orientation of G: {digraph.edges()}")
+        orientations.append(digraph.edges(labels=False))
         return 0
     neighbors = list(set(graph.neighbors(index)).intersection(digraph.vertices())) # this and w could be fusioned
     # furthermore, if I knew how to pass from G to DG in an meaningful way, maybe I could just use G, it all depends on top ordering
@@ -49,7 +50,7 @@ def acyclic_old(graph, index=0, digraph=DiGraph()):
         newDiGraph = digraph.copy()
         newDiGraph.add_vertex(index)
         acyclic_old(
-            graph, index + 1, newDiGraph
+            graph, index + 1, newDiGraph, orientations
         )  # not simply add vertex, previous edges too!
     else:
         w = [node for node in digraph.topological_sort() if node in neighbors] # set intersection doesn't conserve order
@@ -58,7 +59,7 @@ def acyclic_old(graph, index=0, digraph=DiGraph()):
         while not last:
             newDiGraph = extend(digraph, w, d, index)
             acyclic_old(
-                graph, index + 1, newDiGraph
+                graph, index + 1, newDiGraph, orientations
             )  # not simply add vertex, previous edges too!
             if d != "1" * len(neighbors):
                 d = next_legal_assignment(digraph, w, d)
@@ -67,12 +68,11 @@ def acyclic_old(graph, index=0, digraph=DiGraph()):
 
 def acyclic0_old(graph):
     a = process_time_ns()
-    acyclic_old(graph)
+    orientations = []
+    acyclic_old(graph, orientations=orientations)
     b = process_time_ns()
-    print(f"Computing algorithm took {(b-a)/1000000000}s")
-# def acyclic0(graph):
-#     di = DiGraph()
-#     acyclic(graph, digraph=di)
+    n_acyclic_orientations = graph.tutte_polynomial()(2, 0)
+    print(f"Found {len(orientations)} of {n_acyclic_orientations} and computing algorithm took {(b-a)/1000000000}s")
 
 
 # dummy tries
